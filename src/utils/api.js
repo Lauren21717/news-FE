@@ -20,3 +20,14 @@ export const fetchArticleById = (article_id) => {
     })
     .then(data => data.article);
 };
+
+export const fetchCommentsByArticleId = (article_id) => {
+  return fetch(`${BASE_URL}/articles/${article_id}/comments`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch comments: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => data.comments);
+};

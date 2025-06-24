@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { fetchArticleById } from "../utils/api";
-
+import CommentsList from './CommentsList';
 
 const SingleArticle = () => {
   const { article_id } = useParams();
@@ -93,7 +93,13 @@ const SingleArticle = () => {
         </div>
       </article>
 
-      
+      {/* --- Comments Section --- */}
+      <section className="mt-16 pt-12 border-t border-neutral-200">
+        <CommentsList
+          article_id={article_id}
+          commentCount={article.comment_count}
+        />
+      </section>
     </main>
   );
 };

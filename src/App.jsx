@@ -1,16 +1,19 @@
 import { Routes, Route } from "react-router-dom";
 import ArticlesList from "./components/ArticlesList";
 import Header from "./components/Header";
-import SingleArticle from "./components/SingleArticle";
+import ArticleCard from "./components/ArticleCard";
+import './App.css';
 
 function App() {
   return (
     <div>
       <Header />
-      <Routes>
-        <Route path="/" element={<ArticlesList />}></Route>
-        <Route path="/" element={<SingleArticle />}></Route>
-      </Routes>
+      <main>
+        <Routes>
+          <Route path="/" element={<ArticlesList />}></Route>
+          <Route path="/" element={<ArticleCard />}></Route>
+        </Routes>
+      </main>
     </div>
   );
 }

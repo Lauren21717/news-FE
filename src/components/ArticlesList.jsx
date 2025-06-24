@@ -4,8 +4,9 @@ import ArticleCard from "./ArticleCard";
 
 const ArticlesList = () => {
   const [articles, setArticles] = useState([]);
-  const [totalArticles, setTotalArticles] = useState(0); 
+  const [totalArticles, setTotalArticles] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -22,8 +23,30 @@ const ArticlesList = () => {
       });
   }, []);
 
-  if (isLoading) return <p className="text-center py-10">Loading articles...</p>;
-  if (error) return <p className="text-center py-10 text-red-500">Error: {error}</p>;
+  // function to handle loading more articles
+  const handleLoadMore = () => {
+    setIsLoadingMore(true);
+    
+    // 10 arti for a page
+    const currentPage = Math.ceil(articles.length / 10) + 1;
+    
+    fetchArticles(currentPage)
+      .then((data) => {
+        setArticles(prevArticles => [...prevArticles, ...data.articles]);
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setIsLoadingMore(false);
+      });
+  };
+
+
+  if (isLoading)
+    return <p className="text-center py-10">Loading articles...</p>;
+  if (error)
+    return <p className="text-center py-10 text-red-500">Error: {error}</p>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -44,10 +67,27 @@ const ArticlesList = () => {
         ))}
       </div>
 
-      {articles.length > totalArticles && (
-        <div className="text-center py-20">
-          <button className="bg-white border border-neutral-300 text-neutral-800 font-semibold py-3 px-6 rounded-lg transition hover:bg-neutral-100">
-            Load More
+      {/* Show article count info */}
+      <p className="text-center pt-8 text-neutral-500">
+        Showing {articles.length} of {totalArticles} articles
+      </p>
+
+      {/* Load More Button */}
+      {articles.length < totalArticles && (
+        <div className="text-center pt-5 pb-20">
+          <button 
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="bg-white border border-neutral-300 text-neutral-800 font-semibold py-3 px-6 rounded-lg transition hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoadingMore ? (
+              <span className="flex items-center gap-2">
+                <div className="animate-spin w-4 h-4 border-2 border-neutral-300 border-t-neutral-800 rounded-full"></div>
+                Loading...
+              </span>
+            ) : (
+              `Load More`
+            )}
           </button>
         </div>
       )}

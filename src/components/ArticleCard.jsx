@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 
 const ArticleCard = ({ article }) => {
-  // The formatDate function remains exactly the same
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();

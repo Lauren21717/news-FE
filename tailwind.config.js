@@ -13,12 +13,14 @@ export default {
           '500': '#6B7280', // Medium gray for links/metadata
           '400': '#9CA3AF', // Lighter gray for subtle text
         },
-        'brand': '#4F46E5', // A sample brand color for accents if needed
+        'brand': '#4F46E5',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }

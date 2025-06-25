@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
-import { fetchCommentsByArticleId } from '../utils/api';
-import CommentCard from './CommentCard';
-import AddComment from './AddComment';
+import { useState, useEffect } from "react";
+import { fetchCommentsByArticleId } from "../utils/api";
+import CommentCard from "./CommentCard";
+import AddComment from "./AddComment";
 
 const CommentsList = ({ article_id, commentCount, onCommentCountChange }) => {
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hiddenComments, setHiddenComments] = useState(new Set());
+
+  const currentUser = "grumpy19";
 
   useEffect(() => {
     fetchCommentsByArticleId(article_id)
@@ -24,22 +27,60 @@ const CommentsList = ({ article_id, commentCount, onCommentCountChange }) => {
   // Handle comment addition with optimistic rendering
   const handleCommentAdded = (comment, { isOptimistic, tempId, error }) => {
     if (error) {
-      setComments(prev => prev.filter(c => c.comment_id !== tempId));
+      setComments((prev) => prev.filter((c) => c.comment_id !== tempId));
       if (onCommentCountChange) {
-        onCommentCountChange(prev => prev - 1);
+        onCommentCountChange((prev) => prev - 1);
       }
       return;
     }
-    
+
     if (isOptimistic) {
-      setComments(prev => [comment, ...prev]);
+      setComments((prev) => [comment, ...prev]);
       if (onCommentCountChange) {
-        onCommentCountChange(prev => prev + 1);
+        onCommentCountChange((prev) => prev + 1);
       }
     } else {
-      setComments(prev => prev.map(c => (c.comment_id === tempId ? comment : c)));
+      setComments((prev) =>
+        prev.map((c) => (c.comment_id === tempId ? comment : c))
+      );
     }
   };
+
+  // Handle comment deletion
+  const handleCommentDeleted = (
+    commentId,
+    isOptimistic = false,
+    shouldRestore = false
+  ) => {
+    if (shouldRestore) {
+      setHiddenComments((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(commentId);
+        return newSet;
+      });
+      return;
+    }
+
+    if (isOptimistic) {
+      setHiddenComments((prev) => new Set([...prev, commentId]));
+      if (onCommentCountChange) {
+        onCommentCountChange((prev) => prev - 1);
+      }
+    } else {
+      setComments((prevComments) =>
+        prevComments.filter((c) => c.comment_id !== commentId)
+      );
+      setHiddenComments((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(commentId);
+        return newSet;
+      });
+    }
+  };
+
+  const visibleComments = comments.filter(
+    (comment) => !hiddenComments.has(comment.comment_id)
+  );
 
   const renderContent = () => {
     if (isLoading) {
@@ -64,30 +105,35 @@ const CommentsList = ({ article_id, commentCount, onCommentCountChange }) => {
 
     return (
       <div className="space-y-8">
-        {comments.map((comment) => (
-          <CommentCard key={comment.comment_id} comment={comment} />
+        {visibleComments.map((comment) => (
+          <CommentCard
+            key={comment.comment_id}
+            comment={comment}
+            onCommentDeleted={handleCommentDeleted}
+            currentUser={currentUser}
+          />
         ))}
       </div>
     );
   };
 
   return (
-  <section>
-    <h2 className="text-3xl font-bold text-neutral-900 mb-8">
-        Comments ({comments.length})
-    </h2>
+    <section>
+      <h2 className="text-3xl font-bold text-neutral-900 mb-8">
+        Comments ({commentCount || visibleComments.length})
+      </h2>
 
-    {/* Add Comment Form */}
-    <div className="mb-8">
-      <AddComment
-        article_id={article_id}
-        onCommentAdded={handleCommentAdded}
-      />
-    </div>
+      {/* Add Comment Form */}
+      <div className="mb-8">
+        <AddComment
+          article_id={article_id}
+          onCommentAdded={handleCommentAdded}
+        />
+      </div>
 
-    {/* Comment List */}
-    {renderContent()}
-  </section>
+      {/* Comment List */}
+      {renderContent()}
+    </section>
   );
 };
 

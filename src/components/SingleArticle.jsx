@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { fetchArticleById } from "../utils/api";
-import CommentsList from './CommentsList';
+import CommentsList from "./CommentsList";
+import VotingButtons from "./VotingButtons";
 
 const SingleArticle = () => {
   const { article_id } = useParams();
@@ -90,6 +91,11 @@ const SingleArticle = () => {
         {/* --- Article Body --- */}
         <div className="prose prose-lg lg:prose-xl max-w-none text-neutral-800 prose-h2:text-neutral-900">
           <p>{article.body}</p>
+        </div>
+
+        {/* Voting Section - Your New Component */}
+        <div className="mt-12">
+          <VotingButtons article={article} setArticle={setArticle} />
         </div>
       </article>
 

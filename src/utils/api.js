@@ -51,3 +51,22 @@ export const updateArticleVotes = (article_id, inc_votes) => {
     .then(data => data.article);
 };
 
+export const postComment = (article_id, username, body) => {
+  return fetch(`${BASE_URL}/articles/${article_id}/comments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      username: username,
+      body: body
+    })
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Failed to post comment: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => data.comment);
+}

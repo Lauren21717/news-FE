@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { fetchCommentsByArticleId } from '../utils/api';
 import CommentCard from './CommentCard';
+import AddComment from './AddComment';
 
-const CommentsList = ({ article_id, commentCount }) => {
+const CommentsList = ({ article_id, commentCount, onCommentCountChange }) => {
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,6 +20,26 @@ const CommentsList = ({ article_id, commentCount }) => {
         setIsLoading(false);
       });
   }, [article_id]);
+
+  // Handle comment addition with optimistic rendering
+  const handleCommentAdded = (comment, { isOptimistic, tempId, error }) => {
+    if (error) {
+      setComments(prev => prev.filter(c => c.comment_id !== tempId));
+      if (onCommentCountChange) {
+        onCommentCountChange(prev => prev - 1);
+      }
+      return;
+    }
+    
+    if (isOptimistic) {
+      setComments(prev => [comment, ...prev]);
+      if (onCommentCountChange) {
+        onCommentCountChange(prev => prev + 1);
+      }
+    } else {
+      setComments(prev => prev.map(c => (c.comment_id === tempId ? comment : c)));
+    }
+  };
 
   const renderContent = () => {
     if (isLoading) {
@@ -53,8 +74,18 @@ const CommentsList = ({ article_id, commentCount }) => {
   return (
   <section>
     <h2 className="text-3xl font-bold text-neutral-900 mb-8">
-        Comments ({commentCount})
+        Comments ({comments.length})
     </h2>
+
+    {/* Add Comment Form */}
+    <div className="mb-8">
+      <AddComment
+        article_id={article_id}
+        onCommentAdded={handleCommentAdded}
+      />
+    </div>
+
+    {/* Comment List */}
     {renderContent()}
   </section>
   );

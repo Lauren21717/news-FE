@@ -9,11 +9,13 @@ const SingleArticle = () => {
   const [article, setArticle] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
     fetchArticleById(article_id)
       .then((articleData) => {
         setArticle(articleData);
+        setCommentCount(articleData.comment_count);
       })
       .catch((err) => {
         setError(err.message);
@@ -103,7 +105,8 @@ const SingleArticle = () => {
       <section className="mt-16 pt-12 border-t border-neutral-200">
         <CommentsList
           article_id={article_id}
-          commentCount={article.comment_count}
+          commentCount={commentCount}
+          onCommentCountChange={setCommentCount}
         />
       </section>
     </main>

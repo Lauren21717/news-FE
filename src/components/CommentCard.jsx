@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 
 const CommentCard = ({ comment }) => {
   const formatDate = (dateString) => {
+    if (comment.isOptimistic) return "Just now";
+
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now - date);
@@ -22,12 +24,16 @@ const CommentCard = ({ comment }) => {
   };
 
   return (
-    <div className="flex space-x-4">
+    <div className={`flex space-x-4 transition-opacity duration-500 ${
+      comment.isOptimistic ? 'opacity-60' : 'opacity-100'
+    }`}>
       {/* Author Avatar */}
       <div className="flex-shrink-0">
-        <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center font-bold text-neutral-500">
-          {comment.author.charAt(0).toUpperCase()}
-        </div>
+        <img
+          src={`https://i.pravatar.cc/40?u=${comment.author}`}
+          alt={comment.author}
+          className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0"
+        />
       </div>
 
       {/* Comment Content */}
@@ -37,6 +43,11 @@ const CommentCard = ({ comment }) => {
           <p className="text-xs text-neutral-500">
             {formatDate(comment.created_at)}
           </p>
+          {comment.isOptimistic && (
+            <span className="text-xs text-green-600 animate-pulse">
+              Posting...
+            </span>
+          )}
         </div>
         <p className="mt-1 text-neutral-700 leading-relaxed">{comment.body}</p>
 
@@ -49,7 +60,7 @@ const CommentCard = ({ comment }) => {
             👍
           </button>
 
-          <span className='text-neutral-500'>{comment.votes}</span>
+          <span className="text-neutral-500">{comment.votes}</span>
 
           <button
             className="text-neutral-500 hover:text-red-600 transition-colors p-1"

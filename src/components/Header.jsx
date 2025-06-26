@@ -21,6 +21,12 @@ const Header = () => {
           >
             Home
           </Link>
+          <Link
+            to="/topics"
+            className="text-neutral-600 hover:text-neutral-900 font-medium transition-colors"
+          >
+            Topics
+          </Link>
         </div>
 
       </nav>

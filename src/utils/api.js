@@ -2,11 +2,23 @@ const BASE_URL = 'https://news-be-k14i.onrender.com/api'
 
 /**
  * Fetches a list of all articles from the API.
- * @returns {Promise<Object>} A promise that resolves to the JSON response containing the articles.
+ * @param {string} [topic] - Optional topic to filter by.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of article objects.
  * @throws {Error} If the network response is not ok.
  */
-export const fetchArticles = () => {
-  return fetch(`${BASE_URL}/articles`)
+export const fetchArticles = (options = {}) => {
+  let url = `${BASE_URL}/articles`;
+  
+  const params = new URLSearchParams();
+  if (options.topic) {
+    params.append('topic', options.topic);
+  }
+  
+  if (params.toString()) {
+    url += `?${params.toString()}`;
+  }
+
+  return fetch(url)
     .then(response => {
       if (!response.ok) {
         throw new Error('Failed to fetch articles');
@@ -119,4 +131,37 @@ export const deleteComment = (comment_id) => {
       }
       return true;
     });
+};
+
+/**
+ * Fetches all available topics from the API.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of topic objects.
+ * @throws {Error} If the network response is not ok.
+ */
+export const fetchTopics = () => {
+  return fetch(`${BASE_URL}/topics`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch topics');
+      }
+      return response.json();
+    })
+    .then(data => data.topics);
+};
+
+/**
+ * Fetches articles filtered by topic.
+ * @param {string} topic - The topic slug to filter by.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of article objects.
+ * @throws {Error} If the network response is not ok.
+ */
+export const fetchArticlesByTopic = (topic) => {
+  return fetch(`${BASE_URL}/articles?topic=${topic}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch articles for topic: ${topic}`);
+      }
+      return response.json();
+    })
+    .then(data => data.articles);
 };

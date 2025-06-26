@@ -3,6 +3,7 @@ import { useParams, Link, useSearchParams } from "react-router-dom";
 import { fetchArticles } from "../utils/api";
 import ArticleCard from "./ArticleCard";
 import SortControls from "./SortControls";
+import NotFound from './NotFound';
 
 const TopicArticles = () => {
   const { topic } = useParams();
@@ -41,9 +42,21 @@ const TopicArticles = () => {
   }
 
   if (error) {
+    if (error.status === 404) {
+      return <NotFound type="topic" />;
+    }
+    
     return (
-      <div className="text-center py-20 font-semibold text-red-600">
-        Error: {error}
+      <div className="text-center py-20">
+        <div className="text-4xl mb-4">😵</div>
+        <h2 className="text-2xl font-bold text-red-600 mb-2">Unable to Load Articles</h2>
+        <p className="text-gray-600 mb-6">{error.message}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all"
+        >
+          Try Again
+        </button>
       </div>
     );
   }

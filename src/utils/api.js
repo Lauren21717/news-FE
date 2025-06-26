@@ -13,31 +13,18 @@ export const fetchArticles = (options = {}) => {
   let url = `${BASE_URL}/articles`;
   
   const params = new URLSearchParams();
-  
-  if (options.topic) {
-    params.append('topic', options.topic);
-  }
-  
-  if (options.sort_by) {
-    params.append('sort_by', options.sort_by);
-  }
-  
-  if (options.order) {
-    params.append('order', options.order);
-  }
+  if (options.topic) params.append('topic', options.topic);
+  if (options.sort_by) params.append('sort_by', options.sort_by);
+  if (options.order) params.append('order', options.order);
+  if (options.page) params.append('p', options.page);
   
   if (params.toString()) {
     url += `?${params.toString()}`;
   }
 
-
   return fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch articles');
-      }
-      return response.json();
-    });
+    .then(response => handleApiError(response, 'fetch articles'))
+    .then(response => response.json());
 };
 
 /**
@@ -48,12 +35,8 @@ export const fetchArticles = (options = {}) => {
  */
 export const fetchArticleById = (article_id) => {
   return fetch(`${BASE_URL}/articles/${article_id}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Failed to fetch article: ${response.status}`);
-      }
-      return response.json();
-    })
+    .then(response => handleApiError(response, 'fetch article'))
+    .then(response => response.json())
     .then(data => data.article);
 };
 
@@ -153,12 +136,8 @@ export const deleteComment = (comment_id) => {
  */
 export const fetchTopics = () => {
   return fetch(`${BASE_URL}/topics`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch topics');
-      }
-      return response.json();
-    })
+    .then(response => handleApiError(response, 'fetch topics'))
+    .then(response => response.json())
     .then(data => data.topics);
 };
 
@@ -177,4 +156,35 @@ export const fetchArticlesByTopic = (topic) => {
       return response.json();
     })
     .then(data => data.articles);
+};
+
+
+const handleApiError = async (response, context = '') => {
+  if (!response.ok) {
+    let errorMessage = `Failed to ${context}`;
+    
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.msg || errorData.message || errorMessage;
+    } catch {
+      switch (response.status) {
+        case 404:
+          errorMessage = `${context} not found`;
+          break;
+        case 400:
+          errorMessage = `Invalid request: ${context}`;
+          break;
+        case 500:
+          errorMessage = 'Server error. Please try again later.';
+          break;
+        default:
+          errorMessage = `${errorMessage} (${response.status})`;
+      }
+    }
+    
+    const error = new Error(errorMessage);
+    error.status = response.status;
+    throw error;
+  }
+  return response;
 };

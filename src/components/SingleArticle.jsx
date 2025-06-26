@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { fetchArticleById } from "../utils/api";
 import CommentsList from "./CommentsList";
 import VotingButtons from "./VotingButtons";
+import NotFound from './NotFound';
 
 const SingleArticle = () => {
   const { article_id } = useParams();
@@ -12,6 +13,15 @@ const SingleArticle = () => {
   const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
+    if (!/^\d+$/.test(article_id)) {
+      setError({ status: 400, message: 'Invalid article ID format' });
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
     fetchArticleById(article_id)
       .then((articleData) => {
         setArticle(articleData);
@@ -36,9 +46,32 @@ const SingleArticle = () => {
   if (isLoading) {
     return <p className="text-center py-20">Loading article...</p>;
   }
+
   if (error) {
-    return <p className="text-center py-20 text-red-500">Error: {error}</p>;
+    if (error.status === 404) {
+      return <NotFound type="article" />;
+    }
+    
+    if (error.status === 400) {
+      return <NotFound type="article" />;
+    }
+    
+    // Network or other errors
+    return (
+      <div className="text-center py-20">
+        <div className="text-4xl mb-4">😵</div>
+        <h2 className="text-2xl font-bold text-red-600 mb-2">An Error Occurred</h2>
+        <p className="text-gray-600 mb-6">{error.message}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all"
+        >
+          Try Again
+        </button>
+      </div>
+    );
   }
+
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8 sm:py-12">

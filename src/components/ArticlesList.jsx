@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
-import { fetchArticles } from "../utils/api";
-import ArticleCard from "./ArticleCard";
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { fetchArticles } from '../utils/api';
+import ArticleCard from './ArticleCard';
+import SortControls from './SortControls';
 
 const ArticlesList = () => {
   const [articles, setArticles] = useState([]);
@@ -9,8 +11,20 @@ const ArticlesList = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState(null);
 
+  // sort parameters
+  const [searchParams] = useSearchParams();
+  const sortBy = searchParams.get('sort_by') || 'created_at';
+  const order = searchParams.get('order') || 'desc';
+
   useEffect(() => {
-    fetchArticles()
+    setIsLoading(true);
+    setArticles([]);
+
+     fetchArticles({
+      sort_by: sortBy,
+      order: order,
+      page: 1
+    })
       .then((data) => {
         setArticles(data.articles);
         setTotalArticles(data.total_count);
@@ -21,7 +35,7 @@ const ArticlesList = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [sortBy, order]);
 
   // function to handle loading more articles
   const handleLoadMore = () => {
@@ -29,8 +43,11 @@ const ArticlesList = () => {
     
     // 10 arti for a page
     const currentPage = Math.ceil(articles.length / 10) + 1;
-    
-    fetchArticles(currentPage)
+    fetchArticles({
+      sort_by: sortBy,
+      order: order,
+      page: currentPage
+    })
       .then((data) => {
         setArticles(prevArticles => [...prevArticles, ...data.articles]);
       })
@@ -59,6 +76,9 @@ const ArticlesList = () => {
           Ideas, trends, and inspiration for a brighter future
         </p>
       </div>
+      
+      {/* Modern Sort Controls */}
+      <SortControls />
 
       {/* Articles Grid  */}
       <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">

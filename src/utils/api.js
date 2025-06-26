@@ -1,22 +1,35 @@
 const BASE_URL = 'https://news-be-k14i.onrender.com/api'
 
 /**
- * Fetches a list of all articles from the API.
- * @param {string} [topic] - Optional topic to filter by.
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of article objects.
+ * Fetches articles with optional filtering and sorting parameters.
+ * @param {Object} [options={}] - Options for filtering and sorting articles.
+ * @param {string} [options.topic] - Optional topic to filter by.
+ * @param {string} [options.sort_by] - Sort articles by: 'created_at', 'comment_count', 'votes', 'title', 'author'.
+ * @param {string} [options.order] - Sort order: 'asc' or 'desc'.
+ * @returns {Promise<Object>} A promise that resolves to the response with articles array.
  * @throws {Error} If the network response is not ok.
  */
 export const fetchArticles = (options = {}) => {
   let url = `${BASE_URL}/articles`;
   
   const params = new URLSearchParams();
+  
   if (options.topic) {
     params.append('topic', options.topic);
+  }
+  
+  if (options.sort_by) {
+    params.append('sort_by', options.sort_by);
+  }
+  
+  if (options.order) {
+    params.append('order', options.order);
   }
   
   if (params.toString()) {
     url += `?${params.toString()}`;
   }
+
 
   return fetch(url)
     .then(response => {

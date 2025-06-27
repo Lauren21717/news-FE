@@ -6,6 +6,7 @@ import TopicsList from "./components/TopicsList";
 import TopicArticles from "./components/TopicArticles";
 import NotFound from "./components/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
+import './App.css'
 
 function App() {
   return (

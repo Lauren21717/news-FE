@@ -17,6 +17,7 @@ export const fetchArticles = (options = {}) => {
   if (options.sort_by) params.append('sort_by', options.sort_by);
   if (options.order) params.append('order', options.order);
   if (options.page) params.append('p', options.page);
+  if (options.limit) params.append('limit', options.limit);
   
   if (params.toString()) {
     url += `?${params.toString()}`;

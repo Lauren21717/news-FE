@@ -5,6 +5,7 @@ import ArticleCard from './ArticleCard';
 import SortControls from './SortControls';
 
 const ArticlesList = () => {
+  const ARTICLES_PER_PAGE = 9;
   const [articles, setArticles] = useState([]);
   const [totalArticles, setTotalArticles] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,10 +21,11 @@ const ArticlesList = () => {
     setIsLoading(true);
     setArticles([]);
 
-     fetchArticles({
+    fetchArticles({
       sort_by: sortBy,
       order: order,
-      page: 1
+      page: 1,
+      limit: ARTICLES_PER_PAGE,
     })
       .then((data) => {
         setArticles(data.articles);
@@ -42,11 +44,12 @@ const ArticlesList = () => {
     setIsLoadingMore(true);
     
     // 10 arti for a page
-    const currentPage = Math.ceil(articles.length / 10) + 1;
+    const currentPage = Math.ceil(articles.length / ARTICLES_PER_PAGE) + 1;
     fetchArticles({
       sort_by: sortBy,
       order: order,
-      page: currentPage
+      page: currentPage,
+      limit: ARTICLES_PER_PAGE,
     })
       .then((data) => {
         setArticles(prevArticles => [...prevArticles, ...data.articles]);

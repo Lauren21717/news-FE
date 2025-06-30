@@ -1,4 +1,4 @@
-const BASE_URL = 'https://news-be-k14i.onrender.com/api'
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 /**
  * Fetches articles with optional filtering and sorting parameters.

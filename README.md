@@ -176,13 +176,13 @@ This frontend connects to a custom REST API with the following endpoints:
 ### Environment Variables
 Create a `.env` file in the root directory (if needed):
 ```env
-VITE_API_URL=https://your-api-url.herokuapp.com/api
+VITE_API_URL=https://your-api-url.com/api
 ```
 
 ### API Base URL
 Update the API base URL in `src/utils/api.js`:
 ```javascript
-const BASE_URL = 'https://your-api-url.herokuapp.com/api';
+const BASE_URL = 'https://your-api-url.com/api';
 ```
 
 ## 🎨 Design System
